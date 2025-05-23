@@ -3,7 +3,115 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Coral+Pixels&family=Permanent+Marker&family=Roboto+Slab:wght@100..900&display=swap" rel="stylesheet"></head>
   <style>
- 
+    body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(to bottom right, #4ade80, #22d3ee, #60a5fa); /* New vibrant gradient: Green, Cyan, Blue */
+            background-size: cover;
+            background-attachment: fixed;
+        }
+        .container {
+            background-color: rgba(255, 255, 255, 0.2); /* Semi-transparent white */
+            backdrop-filter: blur(10px); /* Frosted glass effect */
+            border-radius: 1rem; /* Rounded corners */
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1); /* Soft shadow */
+            padding: 2rem;
+            width: 100%;
+            max-width: 42rem; /* Equivalent to max-w-2xl */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem; /* Equivalent to space-y-6 */
+            color: white;
+        }
+        textarea {
+            resize: vertical; /* Allow vertical resizing */
+            min-height: 8rem; /* Minimum height for textarea */
+            background-color: rgba(255, 255, 255, 0.1); /* Lighter background for input */
+            border: 2px solid #86efac; /* Light green border */
+            color: white;
+            padding: 1rem;
+            border-radius: 0.75rem; /* Rounded corners */
+            transition: all 0.3s ease-in-out;
+        }
+        textarea::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        textarea:focus {
+            outline: none;
+            border-color: #34d399; /* Brighter green on focus */
+            box-shadow: 0 0 0 2px rgba(52, 211, 153, 0.5); /* Ring effect on focus */
+        }
+        button {
+            background: linear-gradient(to right, #10b981, #0ea5e9); /* Green to light blue gradient */
+            color: white;
+            font-weight: bold;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            border: none;
+        }
+        button:hover:not(:disabled) {
+            background: linear-gradient(to right, #059669, #0284c7); /* Darker gradient on hover */
+            transform: scale(1.05); /* Slightly enlarge on hover */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+        }
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .loading-spinner {
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .image-container img {
+            border: 4px solid #86efac; /* Light green border for image */
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+            max-width: 100%;
+            height: auto;
+        }
+        .error-message {
+            background-color: rgba(239, 68, 68, 0.7); /* Red with opacity */
+            color: white;
+            padding: 0.75rem;
+            border-radius: 0.75rem;
+            text-align: center;
+            width: 100%;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .attribution {
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(209, 213, 219, 0.5); /* Light grey border with opacity */
+            width: 100%;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.875rem; /* text-sm */
+        }
+        @media (max-width: 768px) {
+            .container {
+                padding: 1.5rem;
+                margin: 1rem;
+            }
+            h1 {
+                font-size: 2.25rem; /* text-3xl for smaller screens */
+            }
+        }
   </style>
   <body>
     <center>
@@ -18,6 +126,202 @@
     <br>
     <h1>child</h1>
     <h4>imran</h4>
+       <div class="container">
+        <h1 class="text-4xl font-extrabold text-center mb-4 text-white drop-shadow-lg">
+            AI Image Generator
+        </h1>
+
+        <div id="userIdDisplay" class="text-sm text-gray-200 mb-2 hidden">
+            Your User ID: <span id="userIdValue" class="font-semibold"></span>
+        </div>
+
+        <div class="w-full">
+            <textarea
+                id="promptInput"
+                rows="4"
+                placeholder="Enter your image prompt here (e.g., 'A futuristic city at sunset, cyberpunk style')"
+                class="w-full"
+            ></textarea>
+        </div>
+
+        <button id="generateButton">
+            <svg id="loadingSpinner" class="animate-spin h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span id="buttonText">Generate Image</span>
+        </button>
+
+        <div id="errorMessage" class="error-message hidden"></div>
+
+        <div id="imageContainer" class="w-full flex justify-center mt-6 hidden">
+            <img id="generatedImage" alt="Generated" class="max-w-full h-auto" />
+        </div>
+
+        <div class="attribution">
+            <p>&copy; <span id="currentYear"></span> IMRAN. All rights reserved.</p>
+            <p>Made with ❤️ by IMRAN</p>
+        </div>
+    </div>
+
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // DOM Elements
+        const promptInput = document.getElementById('promptInput');
+        const generateButton = document.getElementById('generateButton');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const buttonText = document.getElementById('buttonText');
+        const errorMessage = document.getElementById('errorMessage');
+        const imageContainer = document.getElementById('imageContainer');
+        const generatedImage = document.getElementById('generatedImage');
+        const userIdDisplay = document.getElementById('userIdDisplay');
+        const userIdValue = document.getElementById('userIdValue');
+        const currentYearSpan = document.getElementById('currentYear');
+
+        // Global Firebase instances
+        let db;
+        let auth;
+        let currentUserId = null;
+
+        // --- Firebase Initialization ---
+        const initializeFirebase = async () => {
+            try {
+                // Ensure __firebase_config is defined and parse it
+                const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+
+                // Sign in with custom token or anonymously
+                if (typeof __initial_auth_token !== 'undefined') {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                    console.log("Signed in with custom token.");
+                } else {
+                    await signInAnonymously(auth);
+                    console.log("Signed in anonymously.");
+                }
+
+                // Listen for auth state changes to get the user ID
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        currentUserId = user.uid;
+                        userIdValue.textContent = currentUserId;
+                        userIdDisplay.classList.remove('hidden');
+                    } else {
+                        // Fallback for unauthenticated users, generate a random ID
+                        currentUserId = crypto.randomUUID();
+                        userIdValue.textContent = currentUserId;
+                        userIdDisplay.classList.remove('hidden');
+                    }
+                });
+            } catch (err) {
+                console.error("Error initializing Firebase:", err);
+                showError("Failed to initialize Firebase. Please try again later.");
+            }
+        };
+
+        // --- UI Utility Functions ---
+        const setLoadingState = (isLoading) => {
+            generateButton.disabled = isLoading || !promptInput.value.trim();
+            if (isLoading) {
+                loadingSpinner.classList.remove('hidden');
+                buttonText.textContent = 'Generating...';
+                errorMessage.classList.add('hidden');
+                imageContainer.classList.add('hidden');
+                generatedImage.src = '';
+            } else {
+                loadingSpinner.classList.add('hidden');
+                buttonText.textContent = 'Generate Image';
+            }
+        };
+
+        const showError = (message) => {
+            errorMessage.textContent = message;
+            errorMessage.classList.remove('hidden');
+        };
+
+        const showImage = (url) => {
+            generatedImage.src = url;
+            imageContainer.classList.remove('hidden');
+            generatedImage.onerror = () => {
+                generatedImage.src = "https://placehold.co/400x300/cccccc/333333?text=Image+Load+Error";
+            };
+        };
+
+        // --- Image Generation Logic ---
+        const generateImage = async () => {
+            const prompt = promptInput.value.trim();
+            if (!prompt) {
+                showError('Please enter a prompt to generate an image.');
+                return;
+            }
+
+            setLoadingState(true);
+            errorMessage.classList.add('hidden');
+            imageContainer.classList.add('hidden');
+
+            try {
+                const payload = { instances: { prompt: prompt }, parameters: { "sampleCount": 1 } };
+                const apiKey = ""; // API key is provided by the environment
+
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${apiKey}`;
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+
+                if (result.predictions && result.predictions.length > 0 && result.predictions[0].bytesBase64Encoded) {
+                    const generatedImageUrl = `data:image/png;base64,${result.predictions[0].bytesBase64Encoded}`;
+                    showImage(generatedImageUrl);
+
+                    // Save to Firestore
+                    if (db && currentUserId) {
+                        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+                        const imagesCollectionRef = collection(db, `artifacts/${appId}/users/${currentUserId}/generated_images`);
+                        await addDoc(imagesCollectionRef, {
+                            prompt: prompt,
+                            imageUrl: generatedImageUrl,
+                            timestamp: new Date()
+                        });
+                        console.log("Image data saved to Firestore.");
+                    } else {
+                        console.warn("Firestore not initialized or userId not available. Image data not saved.");
+                    }
+                } else {
+                    showError('Failed to generate image. Please try again.');
+                    console.error('Image generation failed:', result);
+                }
+            } catch (err) {
+                showError('An error occurred during image generation.');
+                console.error('Error generating image:', err);
+            } finally {
+                setLoadingState(false);
+            }
+        };
+
+        // --- Event Listeners ---
+        generateButton.addEventListener('click', generateImage);
+        promptInput.addEventListener('input', () => {
+            // Enable/disable button based on prompt content
+            generateButton.disabled = loadingSpinner.classList.contains('hidden') && !promptInput.value.trim();
+        });
+
+        // --- Initial Setup on Window Load ---
+        window.onload = () => {
+            initializeFirebase();
+            currentYearSpan.textContent = new Date().getFullYear(); // Set current year for copyright
+            // Initial button state
+            generateButton.disabled = !promptInput.value.trim();
+        };
+    </script>
       </body>
     </center>
 </html>
